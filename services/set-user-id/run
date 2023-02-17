@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+set -e
+
+usermod -u "$PUID" www-data
+groupmod -g "$PGID" www-data
