@@ -79,13 +79,8 @@ RUN set -e; \
     mkdir -p /etc/nginx/server.d; \
     rm -rf /var/www /etc/nginx/http.d/*.conf; \
     touch /etc/s6-overlay/s6-rc.d/user/contents.d/nginx \
-          /etc/s6-overlay/s6-rc.d/user/contents.d/fpm;
-
-RUN set -e; \
-    mkdir -p /var/tmp/nginx; \
-    chown -R app:app /var/tmp/nginx; \
-    find /var/lib -user nginx | xargs chown app; \
-    find /var/lib -group nginx | xargs chgrp app;
+          /etc/s6-overlay/s6-rc.d/user/contents.d/fpm; \
+    mkdir -p /var/tmp/nginx /var/lib/nginx
 
 
 FROM shared AS cli

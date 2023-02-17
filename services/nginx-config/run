@@ -8,3 +8,5 @@ echo "port_in_redirect ${PORT_IN_REDIRECT:-off};" > /etc/nginx/http.d/50-port_in
 
 echo "client_max_body_size ${PHP_POST_MAX_SIZE};" > /etc/nginx/server.d/50-client_max_body_size.conf
 echo "root ${NGINX_ROOT:-/app};" > /etc/nginx/server.d/50-root.conf
+
+chown -R app:app /var/tmp/nginx /var/lib/nginx
