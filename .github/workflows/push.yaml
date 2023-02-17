@@ -10,22 +10,22 @@ jobs:
     strategy:
       matrix:
         include:
-        - php_version: 8.0.26-fpm
+        - php_version: 8.0.28-fpm
           short_php_version: "8.0"
           target: www
-        - php_version: 8.0.26-cli
+        - php_version: 8.0.28-cli
           short_php_version: "8.0"
           target: cli
-        - php_version: 8.1.13-fpm
+        - php_version: 8.1.16-fpm
           short_php_version: "8.1"
           target: www
-        - php_version: 8.1.13-cli
+        - php_version: 8.1.16-cli
           short_php_version: "8.1"
           target: cli
-        - php_version: 8.2.0-fpm
+        - php_version: 8.2.3-fpm
           short_php_version: "8.2"
           target: www
-        - php_version: 8.2.0-cli
+        - php_version: 8.2.3-cli
           short_php_version: "8.2"
           target: cli
 
