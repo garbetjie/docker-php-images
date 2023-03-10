@@ -40,6 +40,7 @@ session.save_path = $PHP_SESSION_SAVE_PATH
 session.name = $PHP_SESSION_NAME
 precision = ${PHP_PRECISION:-14}
 serialize_precision = ${PHP_SERIALIZE_PRECISION:--1}
+log_errors = ${PHP_LOG_ERRORS:-off}
 EOT
 
 
