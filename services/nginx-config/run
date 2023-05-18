@@ -13,5 +13,6 @@ echo "fastcgi_buffer_size ${NGINX_FASTCGI_BUFFER_SIZE:-"16k"};" > /etc/nginx/ser
 echo "fastcgi_buffering ${NGINX_FASTCGI_BUFFERING:-"on"};" > /etc/nginx/server.d/50-fastcgi_buffering.conf
 echo "fastcgi_buffers ${NGINX_FASTCGI_BUFFERS:-"16 16k"};" > /etc/nginx/server.d/50-fastcgi_buffers.conf
 echo "fastcgi_busy_buffers_size ${NGINX_FASTCGI_BUSY_BUFFERS_SIZE:-"32k"};" > /etc/nginx/server.d/50-fastcgi_busy_buffers_size.conf
+echo "fastcgi_read_timeout ${NGINX_FASTCGI_READ_TIMEOUT:-"60s"};" > /etc/nginx/server.d/50-fastcgi_read_timeout.conf
 
 chown -R app:app /var/tmp/nginx /var/lib/nginx
