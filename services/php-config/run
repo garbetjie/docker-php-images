@@ -16,60 +16,60 @@ opcache_module="$(echo "$available_modules" | grep -i opcache)"
 xdebug_module="$(echo "$available_modules" | grep -i xdebug)"
 newrelic_module="$(echo "$available_modules" | grep -i newrelic)"
 
-# Ensure the session directory exists & is writable.
-if [ "$PHP_SESSION_SAVE_HANDLER" = "files" ] && [ ! -d "$PHP_SESSION_SAVE_PATH" ]; then
-  mkdir -p "$PHP_SESSION_SAVE_PATH"
-  chown -R app:app "$PHP_SESSION_SAVE_PATH"
+session_save_handler="${PHP_SESSION_SAVE_HANDLER:-"files"}"
+session_save_path="${PHP_SESSION_SAVE_PATH:-"/var/lib/php/sessions"}"
+
+# Ensure the session directory exists & is writable if we're using files to save the path.
+if [ "$session_save_handler" = "files" ] && [ ! -d "$session_save_path" ]; then
+  mkdir -p "$session_save_path"
+  chown -R app:app "$session_save_path"
 fi
 
 # Core config
-cat <<EOT > "$ini_dir/zz-from-env.ini"
-expose_php = $PHP_EXPOSE_PHP
-display_errors = $PHP_DISPLAY_ERRORS
-error_reporting = $PHP_ERROR_REPORTING
-html_errors = $PHP_HTML_ERRORS
-max_execution_time = $PHP_MAX_EXECUTION_TIME
-max_input_time = $PHP_MAX_INPUT_TIME
-memory_limit = $PHP_MEMORY_LIMIT
-post_max_size = $PHP_POST_MAX_SIZE
-sys_temp_dir = $PHP_SYS_TEMP_DIR
-upload_max_filesize = $PHP_UPLOAD_MAX_FILESIZE
-date.timezone = ${tz}
-session.save_handler = $PHP_SESSION_SAVE_HANDLER
-session.save_path = $PHP_SESSION_SAVE_PATH
-session.name = $PHP_SESSION_NAME
-precision = ${PHP_PRECISION:-14}
-serialize_precision = ${PHP_SERIALIZE_PRECISION:--1}
-log_errors = ${PHP_LOG_ERRORS:-off}
-EOT
+{
+  echo "expose_php = ${PHP_EXPOSE_PHP:-"true"}"
+  echo "display_errors = ${PHP_DISPLAY_ERRORS:-"false"}"
+  echo "error_reporting = ${PHP_ERROR_REPORTING:-"E_ALL & ~E_DEPRECATED & ~E_STRICT"}"
+  echo "html_errors = ${PHP_HTML_ERRORS:-"false"}"
+  echo "max_execution_time = ${PHP_MAX_EXECUTION_TIME:-"30"}"
+  echo "max_input_time = ${PHP_MAX_INPUT_TIME:-"30"}"
+  echo "memory_limit = ${PHP_MEMORY_LIMIT:-"64M"}"
+  echo "post_max_size = ${PHP_POST_MAX_SIZE:-"8M"}"
+  echo "sys_temp_dir = \"${PHP_SYS_TEMP_DIR:-"/tmp"}\""
+  echo "upload_max_filesize = ${PHP_UPLOAD_MAX_FILESIZE:-"8M"}"
+  echo "date.timezone = \"${tz}\""
+  echo "session.save_handler = \"$session_save_handler\""
+  echo "session.save_path = \"$session_save_path\""
+  echo "session.name = \"${PHP_SESSION_NAME:-"session"}\""
+  echo "precision = ${PHP_PRECISION:-"14"}"
+  echo "serialize_precision = ${PHP_SERIALIZE_PRECISION:-"-1"}"
+} > "$ini_dir/zz-51-env.ini"
 
 
 # Opcache config
 if [ "$opcache_module" != "" ]; then
-cat <<EOT >> "$ini_dir/zz-from-env.ini"
-
-opcache.enable = ${PHP_OPCACHE_ENABLE:-true}
-opcache.enable_cli = ${PHP_OPCACHE_ENABLE_CLI:-false}
-opcache.max_accelerated_files = ${PHP_OPCACHE_MAX_ACCELERATED_FILES:-10000}
-opcache.validate_timestamps = ${PHP_OPCACHE_VALIDATE_TIMESTAMPS:-true}
-opcache.revalidate_freq = ${PHP_OPCACHE_REVALIDATE_FREQ:-2}
-opcache.save_comments = ${PHP_OPCACHE_SAVE_COMMENTS:-true}
-opcache.preload = "$PHP_OPCACHE_PRELOAD"
-EOT
+  {
+    echo "opcache.enable = ${PHP_OPCACHE_ENABLE:-"true"}"
+    echo "opcache.enable_cli = ${PHP_OPCACHE_ENABLE_CLI:-"false"}"
+    echo "opcache.max_accelerated_files = ${PHP_OPCACHE_MAX_ACCELERATED_FILES:-"10000"}"
+    echo "opcache.validate_timestamps = ${PHP_OPCACHE_VALIDATE_TIMESTAMPS:-"true"}"
+    echo "opcache.revalidate_freq = ${PHP_OPCACHE_REVALIDATE_FREQ:-"2"}"
+    echo "opcache.save_comments = ${PHP_OPCACHE_SAVE_COMMENTS:-"true"}"
+    echo "opcache.preload = $PHP_OPCACHE_PRELOAD"
+  } > "$ini_dir/zz-51-env-opcache.ini"
 fi
 
 
 # Xdebug config
 if [ "$xdebug_module" != "" ]; then
-cat <<EOT >> "$ini_dir/zz-from-env.ini"
-
-xdebug.client_host = "${PHP_XDEBUG_CLIENT_HOST:-host.docker.internal}"
-xdebug.client_port = ${PHP_XDEBUG_CLIENT_PORT:-9003}
-xdebug.mode = "${PHP_XDEBUG_MODE:-debug,develop,coverage}"
-xdebug.idekey = "${PHP_XDEBUG_IDEKEY:-IDEKEY}"
-xdebug.log = "${PHP_XDEBUG_LOG:-/tmp/xdebug.log}"
-xdebug.log_level = ${PHP_XDEBUG_LOG_LEVEL:-3}
-EOT
+  {
+    echo "xdebug.client_host = \"${PHP_XDEBUG_CLIENT_HOST:-"host.docker.internal"}\""
+    echo "xdebug.client_port = ${PHP_XDEBUG_CLIENT_PORT:-"9003"}"
+    echo "xdebug.mode = \"${PHP_XDEBUG_MODE:-"debug,develop,coverage"}\""
+    echo "xdebug.idekey = \"${PHP_XDEBUG_IDEKEY:-"IDEKEY"}\""
+    echo "xdebug.log = \"${PHP_XDEBUG_LOG:-"/proc/1/fd/2"}\""
+    echo "xdebug.log_level = ${PHP_XDEBUG_LOG_LEVEL:-"3"}"
+  } > "$ini_dir/zz-51-env-xdebug.ini"
 fi
 
 
@@ -77,24 +77,25 @@ fi
 
 if [ "$newrelic_module" != "" ]; then
 
-if [ -n "$PHP_NEWRELIC_LICENCE" ]; then PHP_NEWRELIC_LICENSE="$PHP_NEWRELIC_LICENCE"; fi
-cat <<EOT >> "$ini_dir/zz-from-env.ini"
+  if [ -n "$PHP_NEWRELIC_LICENCE" ]; then
+    PHP_NEWRELIC_LICENSE="$PHP_NEWRELIC_LICENCE"
+  fi
 
-newrelic.enabled = ${PHP_NEWRELIC_ENABLED:-true}
-newrelic.license = "$PHP_NEWRELIC_LICENSE"
-newrelic.appname = "${PHP_NEWRELIC_APPNAME:-PHP Application}"
-newrelic.browser_monitoring.auto_instrument = ${PHP_NEWRELIC_BROWSER_MONITORING_AUTO_INSTRUMENT:-true}
-newrelic.framework = "$PHP_NEWRELIC_FRAMEWORK"
-newrelic.loglevel = "${PHP_NEWRELIC_LOGLEVEL:-info}"
-newrelic.logfile = "${PHP_NEWRELIC_LOGFILE:-/proc/1/fd/2}"
-newrelic.labels = "$PHP_NEWRELIC_LABELS"
-newrelic.process_host.display_name = "$PHP_NEWRELIC_PROCESS_HOST_DISPLAY_NAME"
-newrelic.daemon.app_connect_timeout = "${PHP_NEWRELIC_DAEMON_APP_CONNECT_TIMEOUT:-0}"
-newrelic.daemon.app_timeout = "${PHP_NEWRELIC_DAEMON_APP_TIMEOUT:-10m}"
-newrelic.daemon.loglevel = "${PHP_NEWRELIC_DAEMON_LOG_LEVEL:-info}"
-newrelic.daemon.logfile = "${PHP_NEWRELIC_DAEMON_LOGFILE:-/proc/1/fd/2}"
-newrelic.daemon.location = "${PHP_NEWRELIC_DAEMON_LOCATION:-/usr/local/bin/newrelic-daemon}"
-newrelic.daemon.start_timeout = "${PHP_NEWRELIC_DAEMON_START_TIMEOUT:-0}"
-newrelic.error_collector.record_database_errors = ${PHP_NEWRELIC_ERROR_COLLECTOR_RECORD_DATABASE_ERRORS:-true}
-EOT
+  {
+    echo "newrelic.enabled = ${PHP_NEWRELIC_ENABLED:-"true"}"
+    echo "newrelic.license = \"$PHP_NEWRELIC_LICENSE\""
+    echo "newrelic.appname = \"${PHP_NEWRELIC_APPNAME:-"PHP Application"}\""
+    echo "newrelic.browser_monitoring.auto_instrument = ${PHP_NEWRELIC_BROWSER_MONITORING_AUTO_INSTRUMENT:-"true"}"
+    echo "newrelic.framework = \"$PHP_NEWRELIC_FRAMEWORK\""
+    echo "newrelic.loglevel = \"${PHP_NEWRELIC_LOGLEVEL:-"info"}\""
+    echo "newrelic.logfile = \"${PHP_NEWRELIC_LOGFILE:-"/proc/1/fd/2"}\""
+    echo "newrelic.labels = \"$PHP_NEWRELIC_LABELS\""
+    echo "newrelic.process_host.display_name = \"$PHP_NEWRELIC_PROCESS_HOST_DISPLAY_NAME\""
+    echo "newrelic.daemon.app_connect_timeout = \"${PHP_NEWRELIC_DAEMON_APP_CONNECT_TIMEOUT:-"0"}\""
+    echo "newrelic.daemon.app_timeout = \"${PHP_NEWRELIC_DAEMON_APP_TIMEOUT:-"10m"}\""
+    echo "newrelic.daemon.loglevel = \"${PHP_NEWRELIC_DAEMON_LOG_LEVEL:-"info"}\""
+    echo "newrelic.daemon.logfile = \"${PHP_NEWRELIC_DAEMON_LOGFILE:-"/proc/1/fd/2"}\""
+    echo "newrelic.daemon.location = \"${PHP_NEWRELIC_DAEMON_LOCATION:-"/usr/local/bin/newrelic-daemon"}\""
+    echo "newrelic.error_collector.record_database_errors = ${PHP_NEWRELIC_ERROR_COLLECTOR_RECORD_DATABASE_ERRORS:-"true"}"
+  } > "$ini_dir/zz-51-env-newrelic.ini"
 fi
