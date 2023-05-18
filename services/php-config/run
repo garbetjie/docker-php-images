@@ -96,6 +96,7 @@ if [ "$newrelic_module" != "" ]; then
     echo "newrelic.daemon.loglevel = \"${PHP_NEWRELIC_DAEMON_LOG_LEVEL:-"info"}\""
     echo "newrelic.daemon.logfile = \"${PHP_NEWRELIC_DAEMON_LOGFILE:-"/proc/1/fd/2"}\""
     echo "newrelic.daemon.location = \"${PHP_NEWRELIC_DAEMON_LOCATION:-"/usr/local/bin/newrelic-daemon"}\""
+    echo "newrelic.daemon.start_timeout = \"${PHP_NEWRELIC_DAEMON_START_TIMEOUT:-"0"}\""
     echo "newrelic.error_collector.record_database_errors = ${PHP_NEWRELIC_ERROR_COLLECTOR_RECORD_DATABASE_ERRORS:-"true"}"
   } > "$ini_dir/zz-51-env-newrelic.ini"
 fi
