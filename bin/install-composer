@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+
+set -e
+
+# If composer is already installed, and we're not forcing the installation, then exit.
+if which composer 1> /dev/null && [ "${COMPOSER_FORCE_INSTALL:-false}" != "true" ]; then
+  echo "Composer is already installed."
+  exit 0
+fi
+
+# Ensure the setup file is always removed.
+trap 'rm -f /tmp/composer-setup.php' INT TERM EXIT
+
+expected_checksum="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"
+php -r "copy('https://getcomposer.org/installer', '/tmp/composer-setup.php');"
+actual_checksum="$(php -r "echo hash_file('sha384', '/tmp/composer-setup.php');")"
+
+if [ "$expected_checksum" != "$actual_checksum" ]; then
+  >&2 echo 'ERROR: Invalid installer checksum'
+  exit 1
+fi
+
+php /tmp/composer-setup.php "$@" --filename composer --install-dir /usr/local/bin
