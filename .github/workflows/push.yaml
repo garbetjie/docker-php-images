@@ -9,16 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        variant:
+        - fpm
+        - cli
         php_version:
         - "8.0"
         - "8.1"
         - "8.2"
-        variant:
-        - fpm
-        - cli
-        alpine_version:
-        - "3.18"
         include:
+        - alpine_version: "3.18"
         - php_version: "8.0"
           alpine_version: "3.16"
         - variant: fpm
