@@ -9,18 +9,21 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        php_version:
+        - "8.0"
+        - "8.1"
+        - "8.2"
+        variant:
+        - fpm
+        - cli
+        alpine_version:
+        - "3.18"
         include:
-        - php_version: 8.0-fpm
+        - php_version: "8.0"
+          alpine_version: "3.16"
+        - variant: fpm
           target: www
-        - php_version: 8.0-cli
-          target: cli
-        - php_version: 8.1-fpm
-          target: www
-        - php_version: 8.1-cli
-          target: cli
-        - php_version: 8.2-fpm
-          target: www
-        - php_version: 8.2-cli
+        - variant: cli
           target: cli
 
     steps:
@@ -50,7 +53,9 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         target: "${{ matrix.target }}"
-        build-args: PHP_VERSION=${{ matrix.php_version }}
+        build-args: |
+          PHP_VERSION=${{ matrix.php_version }}-${{ matrix.variant }}
+          ALPINE_VERSION=${{ matrix.alpine_version }}
         tags: ${{ vars.DOCKER_HUB_REPO }}/php:${{ matrix.php_version }}-${{ matrix.target }}
         platforms: linux/amd64,linux/arm64
         push: true

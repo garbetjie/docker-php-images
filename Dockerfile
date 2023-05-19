@@ -1,6 +1,7 @@
 ARG PHP_VERSION
+ARG ALPINE_VERSION=3.18
 
-FROM alpine:3.18 AS fs
+FROM alpine:$ALPINE_VERSION AS fs
 
 RUN mkdir /tmp/root
 RUN wget https://github.com/just-containers/s6-overlay/releases/download/v3.1.2.1/s6-overlay-noarch.tar.xz -P /tmp
@@ -15,7 +16,7 @@ COPY bin/ /tmp/root/usr/local/bin/
 COPY services/ /tmp/root/etc/s6-overlay/s6-rc.d
 
 
-FROM php:${PHP_VERSION}-alpine3.18 AS shared
+FROM php:${PHP_VERSION}-alpine${ALPINE_VERSION} AS shared
 
 STOPSIGNAL SIGTERM
 ENTRYPOINT ["/init"]
