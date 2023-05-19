@@ -5,28 +5,22 @@ on:
 
 jobs:
   push:
-    name: "${{ matrix.short_php_version }}: ${{ matrix.target }}"
+    name: "${{ matrix.target }} @ ${{ matrix.php_version }}"
     runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
-        - php_version: 8.0.28-fpm
-          short_php_version: "8.0"
+        - php_version: 8.0-fpm
           target: www
-        - php_version: 8.0.28-cli
-          short_php_version: "8.0"
+        - php_version: 8.0-cli
           target: cli
-        - php_version: 8.1.16-fpm
-          short_php_version: "8.1"
+        - php_version: 8.1-fpm
           target: www
-        - php_version: 8.1.16-cli
-          short_php_version: "8.1"
+        - php_version: 8.1-cli
           target: cli
-        - php_version: 8.2.3-fpm
-          short_php_version: "8.2"
+        - php_version: 8.2-fpm
           target: www
-        - php_version: 8.2.3-cli
-          short_php_version: "8.2"
+        - php_version: 8.2-cli
           target: cli
 
     steps:
@@ -43,8 +37,8 @@ jobs:
       uses: actions/cache@v3
       with:
         path: /tmp/.buildx-cache
-        key: ${{ matrix.short_php_version }}-${{ matrix.target }}-${{ github.sha }}
-        restore-keys: ${{ matrix.short_php_version }}-${{ matrix.target }}-
+        key: ${{ matrix.php_version }}-${{ matrix.target }}-${{ github.sha }}
+        restore-keys: ${{ matrix.php_version }}-${{ matrix.target }}-
 
     - name: Log in to Docker
       uses: docker/login-action@v2
@@ -57,7 +51,7 @@ jobs:
       with:
         target: "${{ matrix.target }}"
         build-args: PHP_VERSION=${{ matrix.php_version }}
-        tags: ${{ vars.DOCKER_HUB_REPO }}/php:${{ matrix.short_php_version }}-${{ matrix.target }}
+        tags: ${{ vars.DOCKER_HUB_REPO }}/php:${{ matrix.php_version }}-${{ matrix.target }}
         platforms: linux/amd64,linux/arm64
         push: true
         cache-to: type=local,dest=/tmp/.buildx-cache-new
