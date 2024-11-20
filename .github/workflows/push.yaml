@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-    - main
+    - convert-to-debian
 
 jobs:
   push:
