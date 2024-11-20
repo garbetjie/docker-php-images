@@ -50,6 +50,7 @@ jobs:
         build-args: |
           PHP_VERSION=${{ matrix.php_version }}
         tags: ${{ vars.DOCKER_HUB_REPO }}/php:${{ matrix.php_version }}-${{ matrix.target }}-debian
+        file: ${{ matrix.dockerfile }}
         platforms: linux/amd64,linux/arm64
         push: true
         cache-to: type=local,dest=/tmp/.buildx-cache-new
