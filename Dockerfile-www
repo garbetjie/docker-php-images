@@ -1,5 +1,5 @@
-ARG IMAGE_TAG="8.3-cli-bookworm"
-FROM php:$IMAGE_TAG
+ARG PHP_VERSION="8.3"
+FROM unit:php$PHP_VERSION
 
 WORKDIR /app
 
@@ -23,10 +23,9 @@ ONBUILD RUN groupmod -g "$PGID" app
 
 RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
 
-COPY config/php-config.sh /usr/local/bin/docker-php-config
-COPY config/docker-entrypoint.sh /usr/local/bin/docker-php-entrypoint
+COPY config/php-config.sh /docker-entrypoint.d/php-config.sh
+COPY config/unit-config.json /docker-entrypoint.d/nginx-config.json
 
 # Core configuration
 ENV PHP__XDEBUG__CLIENT_HOST="host.docker.internal" \
-    PHP__XDEBUG__MODE="develop,debug" \
-    PHP__XDEBUG__CLI_COLOR="true"
+    PHP__XDEBUG__MODE="develop,debug"
