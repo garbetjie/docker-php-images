@@ -1,5 +1,5 @@
-ARG IMAGE_TAG="8.3-cli-bookworm"
-FROM php:$IMAGE_TAG
+ARG PHP_VERSION="8.3"
+FROM php:${PHP_VERSION}-cli-bookworm
 
 WORKDIR /app
 

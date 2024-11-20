@@ -9,21 +9,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        variant:
-        - fpm
+        target:
+        - www
         - cli
         php_version:
-        - "8.0"
         - "8.1"
         - "8.2"
+        - "8.3"
         include:
-        - alpine_version: "3.18"
-        - php_version: "8.0"
-          alpine_version: "3.16"
-        - variant: fpm
-          target: www
-        - variant: cli
-          target: cli
+        - target: www
+          dockerfile: Dockerfile-www
+        - target: cli
+          dockerfile: Dockerfile
 
     steps:
     - name: Check out
@@ -51,11 +48,9 @@ jobs:
     - name: Build
       uses: docker/build-push-action@v3
       with:
-        target: "${{ matrix.target }}"
         build-args: |
-          PHP_VERSION=${{ matrix.php_version }}-${{ matrix.variant }}
-          ALPINE_VERSION=${{ matrix.alpine_version }}
-        tags: ${{ vars.DOCKER_HUB_REPO }}/php:${{ matrix.php_version }}-${{ matrix.target }}
+          PHP_VERSION=${{ matrix.php_version }}
+        tags: ${{ vars.DOCKER_HUB_REPO }}/php:${{ matrix.php_version }}-${{ matrix.target }}-debian
         platforms: linux/amd64,linux/arm64
         push: true
         cache-to: type=local,dest=/tmp/.buildx-cache-new
