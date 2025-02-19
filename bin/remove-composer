@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+if [ -f /usr/local/bin/composer ]; then
+  rm /usr/local/bin/composer
+fi
