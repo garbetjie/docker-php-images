@@ -1,7 +1,7 @@
-ARG PHP_VERSION="8.3"
-FROM unit:php$PHP_VERSION
+ARG PHP_VERSION="8.4"
+FROM unit:php${PHP_VERSION}
 
-WORKDIR /app
+WORKDIR /srv
 
 # For running this image directly.
 ARG PUID=1000
@@ -23,9 +23,12 @@ ONBUILD RUN groupmod -g "$PGID" app
 
 RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
 
-COPY config/php-config.sh /docker-entrypoint.d/php-config.sh
-COPY config/unit-config.json /docker-entrypoint.d/nginx-config.json
+COPY config/write-php-config.sh /docker-entrypoint.d/
+COPY config/generate-certificate.sh /docker-entrypoint.d/
+
+# Make the entrypoint run through bash.
+RUN sed -i "1s/.*/#\!\/usr\/bin\/env bash/" /usr/local/bin/docker-entrypoint.sh
 
 # Core configuration
-ENV PHP__XDEBUG__CLIENT_HOST="host.docker.internal" \
-    PHP__XDEBUG__MODE="develop,debug"
+ENV php.xdebug.client_host="host.docker.internal" \
+    php.xdebug.mode="develop,debug"
