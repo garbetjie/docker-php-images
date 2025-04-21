@@ -24,7 +24,7 @@ ONBUILD RUN groupmod -g "$PGID" app
 RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
 
 COPY config/write-php-config.sh /docker-entrypoint.d/
-COPY config/generate-certificate.sh /docker-entrypoint.d/
+COPY config/write-unit-config.sh /docker-entrypoint.d/
 
 # Make the entrypoint run through bash.
 RUN sed -i "1s/.*/#\!\/usr\/bin\/env bash/" /usr/local/bin/docker-entrypoint.sh
