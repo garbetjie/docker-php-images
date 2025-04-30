@@ -10,16 +10,17 @@ jobs:
     strategy:
       matrix:
         target:
-        - www
+        - web
         - cli
         php_version:
         - "8.2"
         - "8.3"
+        - "8.4"
         include:
-        - target: www
-          dockerfile: Dockerfile-www
+        - target: web
+          dockerfile: web.Dockerfile
         - target: cli
-          dockerfile: Dockerfile
+          dockerfile: cli.Dockerfile
 
     steps:
     - name: Check out
