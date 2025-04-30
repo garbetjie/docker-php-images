@@ -22,6 +22,9 @@ ONBUILD RUN usermod -u "$PUID" app
 ONBUILD RUN groupmod -g "$PGID" app
 
 RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
+RUN apt-get update && \
+    apt-get install -y jq && \
+    apt-get clean
 
 COPY config/write-php-config.sh /docker-entrypoint.d/
 COPY config/write-unit-config.sh /docker-entrypoint.d/
